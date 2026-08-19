@@ -1,15 +1,17 @@
-from fastapi import APIRouter, HTTPException, status, Depends
+from fastapi import APIRouter, HTTPException, status, Depends, Request
 from app.database import users_collection
 from app.core.security import verify_password, create_access_token
 from app.core.utils import serialize_doc
 from app.core.deps import get_current_user
 from app.models.schemas import LoginRequest, LoginResponse
+from app.core.limiter import limiter
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
 
 @router.post("/login", response_model=LoginResponse)
-async def login(payload: LoginRequest):
+@limiter.limit("5/minute")
+async def login(request: Request, payload: LoginRequest):
     user = await users_collection.find_one({"email": payload.email.lower()})
     if not user or not verify_password(payload.password, user["password_hash"]):
         raise HTTPException(

@@ -3,8 +3,14 @@ Seed the MongoDB database with demo data matching the original frontend mock dat
 
 Run with:
     python -m app.seed
+
+SAFETY: This script deletes ALL existing data in every collection. It refuses
+to run against production unless ALLOW_SEED_ENDPOINT=true is explicitly set,
+so it can never accidentally wipe real patient/appointment data.
 """
 import asyncio
+import secrets
+from app.config import settings
 from app.database import (
     users_collection,
     doctors_collection,
@@ -18,6 +24,21 @@ from app.core.security import hash_password
 
 
 async def seed():
+    if settings.environment == "production" and not settings.allow_seed_endpoint:
+        raise RuntimeError(
+            "Refusing to run seed.py against production (ENVIRONMENT=production). "
+            "This would delete all real data. If you really need demo data on a "
+            "non-prod deployment, set ALLOW_SEED_ENDPOINT=true explicitly."
+        )
+
+    # Use random passwords instead of well-known ones once this isn't purely local dev.
+    if settings.environment == "development":
+        patient_pw, doctor_pw, reception_pw = "patient123", "doctor123", "reception123"
+    else:
+        patient_pw = secrets.token_urlsafe(12)
+        doctor_pw = secrets.token_urlsafe(12)
+        reception_pw = secrets.token_urlsafe(12)
+
     print("Clearing existing collections...")
     for coll in [
         users_collection,
@@ -35,7 +56,7 @@ async def seed():
         {
             "name": "Rahul Sharma",
             "email": "patient@hospital.com",
-            "password_hash": hash_password("patient123"),
+            "password_hash": hash_password(patient_pw),
             "role": "patient",
             "age": 29,
             "gender": "Male",
@@ -48,7 +69,7 @@ async def seed():
         {
             "name": "Dr. Ananya Mehta",
             "email": "doctor@hospital.com",
-            "password_hash": hash_password("doctor123"),
+            "password_hash": hash_password(doctor_pw),
             "role": "doctor",
             "specialization": "Cardiologist",
             "qualification": "MD, DM (Cardiology)",
@@ -60,7 +81,7 @@ async def seed():
         {
             "name": "Sunita Rao",
             "email": "reception@hospital.com",
-            "password_hash": hash_password("reception123"),
+            "password_hash": hash_password(reception_pw),
             "role": "reception",
             "department": "Front Desk Administration",
             "phone": "+91 98222 33344",
@@ -287,10 +308,10 @@ async def seed():
     await invoices_collection.insert_many(invoices)
 
     print("\n✅ Seed complete!")
-    print("\nDemo login credentials:")
-    print("  patient@hospital.com   / patient123")
-    print("  doctor@hospital.com    / doctor123")
-    print("  reception@hospital.com / reception123")
+    print("\nLogin credentials (save these now, they are not stored anywhere):")
+    print(f"  patient@hospital.com   / {patient_pw}")
+    print(f"  doctor@hospital.com    / {doctor_pw}")
+    print(f"  reception@hospital.com / {reception_pw}")
 
 
 if __name__ == "__main__":
