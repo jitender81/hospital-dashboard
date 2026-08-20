@@ -87,15 +87,10 @@ pipeline {
 
                         docker run -d \
                             --name hospital-backend \
+                            --env-file /home/ubuntu/hospital-dashboard/hospital-backend/.env \
                             -p 5000:8000 \
                             --restart unless-stopped \
                             jiender/hospital-dashboard-backend:latest
-                    '''
-                }
-            }
-        }
-    
-
     post {
         success {
             echo 'Pipeline completed successfully!'
