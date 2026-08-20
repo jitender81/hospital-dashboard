@@ -20,6 +20,16 @@ pipeline {
             }
         }
 
+
+        stage('Backend Build') {
+            steps {
+                dir('hospital-backend') {
+                  sh 'python3 -m venv venv'
+                  sh 'venv/bin/pip install -r requirements.txt'
+                }
+            }
+        }
+
         stage('Test') {
             steps {
                 echo 'Test stage will be added next.'
