@@ -1,5 +1,7 @@
 pipeline {
-    agent any
+   agent {
+    label 'hosptal-agent'
+   }
 
     stages {
 
@@ -12,8 +14,8 @@ pipeline {
         stage('Frontend Build') {
             steps {
                    dir('hospital-frontend') {
-                    bat 'npm ci'
-                    bat 'npm run build'
+                    sh 'npm ci'
+                    sh 'npm run build'
                 }
             }
         }
