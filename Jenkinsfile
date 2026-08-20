@@ -30,6 +30,13 @@ pipeline {
             }
         }
 
+        stage('Docker Build') {
+            steps {
+                sh 'docker build -t hospital-frontend ./hospital-frontend'
+                sh 'docker build -t hospital-backend ./hospital-backend'
+            }
+        }
+
         stage('Test') {
             steps {
                 echo 'Test stage will be added next.'
