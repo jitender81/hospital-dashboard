@@ -34,7 +34,7 @@ pipeline {
 
         stage('Docker Build') {
             steps {
-                sh 'docker build -t hospital-frontend ./hospital-frontend'
+                sh 'docker build --build-arg VITE_API_URL=/api -t hospital-frontend ./hospital-frontend'
                 sh 'docker build -t hospital-backend ./hospital-backend'
             }
         }
