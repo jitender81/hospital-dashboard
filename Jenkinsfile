@@ -9,9 +9,12 @@ pipeline {
             }
         }
 
-        stage('Build') {
+        stage('Frontend Build') {
             steps {
-                echo 'Build stage will be added next.'
+                   dir('hospital-frontend') {
+                    bat 'npm ci'
+                    bat 'npm run build'
+                }
             }
         }
 
