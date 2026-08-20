@@ -7,7 +7,7 @@ pipeline {
 
         stage('Checkout') {
             steps {
-                echo 'Hospital Dashboard CI/CD started!'
+                echo 'Hospital Dashboard CI/CD started Well!'
             }
         }
 
