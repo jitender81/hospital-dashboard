@@ -36,7 +36,28 @@ pipeline {
                 sh 'docker build -t hospital-backend ./hospital-backend'
             }
         }
+        stage('DockerHub Push') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'DockerhubCred',
+                    usernameVariable: 'DOCKER_USERNAME',
+                    passwordVariable: 'DOCKER_PASSWORD'
+                )]) {
 
+                    sh '''
+                        echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+
+                        docker tag hospital-frontend:latest jiender/hospital-dashboard-frontend:latest
+                        docker tag hospital-backend:latest jiender/hospital-dashboard-backend:latest
+
+                        docker push jiender/hospital-dashboard-frontend:latest
+                        docker push jiender/hospital-dashboard-backend:latest
+
+                        docker logout
+                    '''
+                }
+            }
+        }
         stage('Test') {
             steps {
                 echo 'Test stage will be added next.'
