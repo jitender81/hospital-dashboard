@@ -65,8 +65,36 @@ pipeline {
                 echo 'Test stage will be added next.'
             }
         }
+        stage('Deploy') {
+            steps {
+                echo 'Deploying Hospital Dashboard...'
 
-    }
+                    sh '''
+                        docker pull jiender/hospital-dashboard-frontend:latest
+                        docker pull jiender/hospital-dashboard-backend:latest
+
+                        docker stop hospital-frontend || true
+                        docker rm hospital-frontend || true
+
+                        docker stop hospital-backend || true
+                        docker rm hospital-backend || true
+
+                        docker run -d \
+                            --name hospital-frontend \
+                            -p 3000:80 \
+                            --restart unless-stopped \
+                            jiender/hospital-dashboard-frontend:latest
+
+                        docker run -d \
+                            --name hospital-backend \
+                            -p 5000:8000 \
+                            --restart unless-stopped \
+                            jiender/hospital-dashboard-backend:latest
+                    '''
+                }
+            }
+        }
+    
 
     post {
         success {
