@@ -14,12 +14,14 @@ pipeline {
         stage('Frontend Build') {
             steps {
                    dir('hospital-frontend') {
-                    sh 'npm ci'
-                    sh 'npm run build'
-                }
+                    sh '''
+                        echo "VITE_API_URL=/api" > .env
+                        npm ci
+                        npm run build
+                    '''
+               }
             }
         }
-
 
         stage('Backend Build') {
             steps {
